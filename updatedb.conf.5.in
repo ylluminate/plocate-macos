@@ -104,7 +104,7 @@ and thus, may get skipped if you have also mounted the filesystem root itself.
 To counteract this, make your root directory a Btrfs subvolume, too.
 
 By default, bind mounts are not skipped.
-
+@UPDATEDB_CONF_DARWIN@
 .SH NOTES
 When a directory is matched by \fBPRUNEFS\fR, \fBPRUNENAMES\fR or
 \fBPRUNEPATHS\fR,
