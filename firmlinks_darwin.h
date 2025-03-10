@@ -8,8 +8,8 @@
 #include <vector>
 
 struct FirmlinkPair {
-    std::string raw_path;
     std::string logical_path;
+    std::string raw_path;
 };
 
 std::vector<FirmlinkPair> get_firmlinks(void);

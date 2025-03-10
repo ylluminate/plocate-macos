@@ -30,6 +30,9 @@ any later version.
 #include "dprintf.h"
 #include "io_uring_engine.h"
 #include "lib.h"
+#ifdef HAS_FIRMLINKS_DARWIN_H
+#include "firmlinks_darwin.h"
+#endif
 
 #include <algorithm>
 #include <arpa/inet.h>
