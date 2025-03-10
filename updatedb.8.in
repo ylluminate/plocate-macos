@@ -44,6 +44,7 @@ returns with exit status 0 on success, 1 on error.
 
 .SH OPTIONS
 The \fBPRUNE_BIND_MOUNTS\fR, \fBPRUNEFS\fR,
+@UPDATEDB_OPTIONS_SECTION_DARWIN@
 .B PRUNENAMES
 and
 .B PRUNEPATHS
@@ -98,7 +99,7 @@ instead of using the default database.
 Set
 .B PRUNE_BIND_MOUNTS
 to \fIFLAG\fR, overriding the configuration file.
-
+@UPDATEDB_OPTIONS_FLAG_DARWIN@
 .TP
 \fB\-\-prunefs\fR \fIFS\fR
 Set \fBPRUNEFS\fR to \fIFS\fR, overriding the configuration file.

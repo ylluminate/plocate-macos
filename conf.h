@@ -43,6 +43,11 @@ extern std::vector<std::string> conf_prunepaths;
 /* true if bind mounts should be skipped */
 extern bool conf_prune_bind_mounts;
 
+#ifdef __APPLE__
+/* true if firmlinks should be skipped */
+extern bool conf_prune_firmlinks;
+#endif
+
 /* true if pruning debug output was requested */
 extern bool conf_debug_pruning;
 
