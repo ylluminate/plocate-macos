@@ -61,7 +61,7 @@ vector<string> conf_prunepaths;
 /* true if bind mounts should be skipped */
 bool conf_prune_bind_mounts; /* = false; */
 
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 /* true if firmlinks should be skipped */
 bool conf_prune_firmlinks = true;
 #endif
@@ -150,7 +150,7 @@ enum {
 	UCT_QUOTED,
 	UCT_OTHER,
 	UCT_PRUNE_BIND_MOUNTS,
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	UCT_PRUNE_FIRMLINKS,
 #endif
 	UCT_PRUNEFS,
@@ -209,7 +209,7 @@ uc_lex(void)
 		ungetc(c, uc_file);
 		if (uc_lex_buf == "PRUNE_BIND_MOUNTS")
 			return UCT_PRUNE_BIND_MOUNTS;
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 		if (uc_lex_buf == "PRUNE_FIRMLINKS")
 			return UCT_PRUNE_FIRMLINKS;
 #endif
@@ -229,7 +229,7 @@ static void
 parse_updatedb_conf(void)
 {
 	bool had_prune_bind_mounts, had_prunefs, had_prunenames, had_prunepaths;
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	bool had_prune_firmlinks;
 #endif
 
@@ -244,7 +244,7 @@ parse_updatedb_conf(void)
 	flockfile(uc_file);
 	uc_current_line = 1;
 	had_prune_bind_mounts = false;
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	had_prune_firmlinks = false;
 #endif
 	had_prunefs = false;
@@ -266,7 +266,7 @@ parse_updatedb_conf(void)
 			had_var = &had_prune_bind_mounts;
 			break;
 
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 		case UCT_PRUNE_FIRMLINKS:
 			had_var = &had_prune_firmlinks;
 			break;
@@ -319,7 +319,7 @@ parse_updatedb_conf(void)
 				        UPDATEDB_CONF, uc_line, uc_lex_buf.c_str());
 				exit(EXIT_FAILURE);
 			}
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 		} else if (var_token == UCT_PRUNE_FIRMLINKS) {
 			if (parse_bool(&conf_prune_firmlinks, uc_lex_buf.c_str()) != 0) {
 				fprintf(stderr, "%s:%u: invalid value `%s' of PRUNE_FIRMLINKS\n",
@@ -379,7 +379,7 @@ help(void)
 	       "                                 in each block (default 32)\n"
 	       "      --prune-bind-mounts FLAG   omit bind mounts (default "
 	       "\"no\")\n"
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	       "      --prune-firmlinks FLAG     omit firmlinks (default \"yes\")\n"
 #endif
 	       "      --prunefs FS               filesystems to omit from "
@@ -439,7 +439,7 @@ parse_arguments(int argc, char *argv[])
 		{ "help", no_argument, NULL, 'h' },
 		{ "output", required_argument, NULL, 'o' },
 		{ "prune-bind-mounts", required_argument, NULL, 'B' },
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 		{ "prune-firmlinks", required_argument, NULL, 'L' },
 #endif
 		{ "prunefs", required_argument, NULL, 'F' },
@@ -455,7 +455,7 @@ parse_arguments(int argc, char *argv[])
 
 	bool prunefs_changed, prunenames_changed, prunepaths_changed;
 	bool got_prune_bind_mounts, got_visibility;
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	bool got_prune_firmlinks;
 #endif
 
@@ -463,7 +463,7 @@ parse_arguments(int argc, char *argv[])
 	prunenames_changed = false;
 	prunepaths_changed = false;
 	got_prune_bind_mounts = false;
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 	got_prune_firmlinks = false;
 #endif
 	got_visibility = false;
@@ -492,7 +492,7 @@ parse_arguments(int argc, char *argv[])
 			}
 			break;
 
-#ifdef __APPLE__
+#ifdef HAS_FIRMLINKS_DARWIN_H
 		case 'L':
 			if (got_prune_firmlinks != false) {
 				fprintf(stderr, "%s: --%s would override earlier command-line argument\n",
