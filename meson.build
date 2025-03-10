@@ -1,5 +1,7 @@
 project('plocate', 'cpp', default_options: ['buildtype=release', 'cpp_std=c++17', 'b_lto=true'], version: '1.1.24-dev')
 
+fs = import('fs') 
+
 if get_option('locategroup') == ''
 	if target_machine.system() != 'darwin'
 		locategroup = 'plocate'
@@ -83,10 +85,11 @@ conf_data.set('updatedb_conf', '/etc/updatedb.conf')
 conf_data.set('updatedb_progname', updatedb_progname)
 conf_data.set('is_darwin', target_machine.system() == 'darwin')
 if target_machine.system() == 'darwin'
-  updatedb_conf_man_darwin_insert = files('updatedb.conf.darwin.5').read()
+  updatedb_conf_man_darwin_insert = fs.read('updatedb.conf.darwin.5')
+  conf_data.set('UPDATEDB_CONF_DARWIN', updatedb_conf_man_darwin_insert)
   conf_data.set('UPDATEDB_OPTIONS_SECTION_DARWIN', '\fBPRUNE_BIND_MOUNTS\fR,\n')
-  updatedb_man_darwin_flag_insert = files('updatedb.flag.darwin.5').read()
-  conf_data.set('UPDATEDB_OPTIONS_FLAG_DARWIN', updatedb_conf_man_darwin_insert)
+  updatedb_man_darwin_flag_insert = fs.read('updatedb.flag.darwin.5')
+  conf_data.set('UPDATEDB_OPTIONS_FLAG_DARWIN', updatedb_man_darwin_flag_insert)
 else
   conf_data.set('UPDATEDB_CONF_DARWIN', '')
 endif
@@ -137,7 +140,7 @@ endif
 # Unless you have a recent Meson, there's no apparently good way
 # of calling into that directory to run make, and we're not
 # replicating their build system, so it has to be manual.
-pfordir = meson.source_root() + '/TurboPFor-Integer-Compression'
+pfordir = meson.project_source_root() + '/TurboPFor-Integer-Compression'
 if run_command('[', '-r', pfordir + '/libic.a', ']', check: false).returncode() == 0
 	turbopfordep = declare_dependency(
 		include_directories: include_directories('TurboPFor-Integer-Compression/lib/include_'),
