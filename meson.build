@@ -44,6 +44,13 @@ else
 	error('no mntent.h or compat shim')
 endif
 
+if target_machine.system() == 'darwin'
+	add_project_arguments('-DHAS_FIRMLINKS_DARWIN_H', language: 'cpp')
+	firmlinks_darwin_src = ['firmlinks_darwin.cpp']
+else
+	firmlinks_darwin_src = []
+endif 
+
 # Function multiversioning is x86-only _and_ not available on certain targets
 # (they need “ifunc”, indirect functions, a GNU extension).
 code = '''__attribute__((target("default"))) void foo();
@@ -62,7 +69,7 @@ executable('plocate-build', ['plocate-build.cpp', 'database-builder.cpp'],
 	install: true,
 	install_dir: get_option('sbindir'))
 updatedb_progname = get_option('updatedb_progname')
-executable(updatedb_progname, ['updatedb.cpp', 'database-builder.cpp', 'conf.cpp', 'lib.cpp', 'bind-mount.cpp', 'complete_pread.cpp'] + mntent_compat_src,
+executable(updatedb_progname, ['updatedb.cpp', 'database-builder.cpp', 'conf.cpp', 'lib.cpp', 'bind-mount.cpp', 'complete_pread.cpp'] + mntent_compat_src + firmlinks_darwin_src,
 	dependencies: [zstddep, threaddep],
 	install: true,
 	install_dir: get_option('sbindir'))
@@ -74,6 +81,14 @@ conf_data.set('groupname', locategroup)
 conf_data.set('dbfile', dbfile)
 conf_data.set('updatedb_conf', '/etc/updatedb.conf')
 conf_data.set('updatedb_progname', updatedb_progname)
+conf_data.set('is_darwin', target_machine.system() == 'darwin')
+if target_machine.system() == 'darwin'
+  updatedb_conf_man_darwin_insert = files('updatedb.conf.darwin.5').read()
+  conf_data.set('UPDATEDB_CONF_DARWIN', updatedb_conf_man_darwin_insert)
+else
+  conf_data.set('UPDATEDB_CONF_DARWIN', '')
+endif
+
 update_script = configure_file(input: 'update-plocate.sh',
                output: 'update-plocate.sh',
                configuration: conf_data)
