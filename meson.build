@@ -84,7 +84,9 @@ conf_data.set('updatedb_progname', updatedb_progname)
 conf_data.set('is_darwin', target_machine.system() == 'darwin')
 if target_machine.system() == 'darwin'
   updatedb_conf_man_darwin_insert = files('updatedb.conf.darwin.5').read()
-  conf_data.set('UPDATEDB_CONF_DARWIN', updatedb_conf_man_darwin_insert)
+  conf_data.set('UPDATEDB_OPTIONS_SECTION_DARWIN', '\fBPRUNE_BIND_MOUNTS\fR,\n')
+  updatedb_man_darwin_flag_insert = files('updatedb.flag.darwin.5').read()
+  conf_data.set('UPDATEDB_OPTIONS_FLAG_DARWIN', updatedb_conf_man_darwin_insert)
 else
   conf_data.set('UPDATEDB_CONF_DARWIN', '')
 endif

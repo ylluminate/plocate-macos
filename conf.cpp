@@ -61,6 +61,11 @@ vector<string> conf_prunepaths;
 /* true if bind mounts should be skipped */
 bool conf_prune_bind_mounts; /* = false; */
 
+#ifdef __APPLE__
+/* true if firmlinks should be skipped */
+bool conf_prune_firmlinks = true;
+#endif
+
 /* true if pruning debug output was requested */
 bool conf_debug_pruning; /* = false; */
 
@@ -145,6 +150,9 @@ enum {
 	UCT_QUOTED,
 	UCT_OTHER,
 	UCT_PRUNE_BIND_MOUNTS,
+#ifdef __APPLE__
+	UCT_PRUNE_FIRMLINKS,
+#endif
 	UCT_PRUNEFS,
 	UCT_PRUNENAMES,
 	UCT_PRUNEPATHS
@@ -201,6 +209,10 @@ uc_lex(void)
 		ungetc(c, uc_file);
 		if (uc_lex_buf == "PRUNE_BIND_MOUNTS")
 			return UCT_PRUNE_BIND_MOUNTS;
+#ifdef __APPLE__
+		if (uc_lex_buf == "PRUNE_FIRMLINKS")
+			return UCT_PRUNE_FIRMLINKS;
+#endif
 		if (uc_lex_buf == "PRUNEFS")
 			return UCT_PRUNEFS;
 		if (uc_lex_buf == "PRUNENAMES")
@@ -217,6 +229,9 @@ static void
 parse_updatedb_conf(void)
 {
 	bool had_prune_bind_mounts, had_prunefs, had_prunenames, had_prunepaths;
+#ifdef __APPLE__
+	bool had_prune_firmlinks;
+#endif
 
 	uc_file = fopen(UPDATEDB_CONF, "r");
 	if (uc_file == NULL) {
@@ -229,6 +244,9 @@ parse_updatedb_conf(void)
 	flockfile(uc_file);
 	uc_current_line = 1;
 	had_prune_bind_mounts = false;
+#ifdef __APPLE__
+	had_prune_firmlinks = false;
+#endif
 	had_prunefs = false;
 	had_prunenames = false;
 	had_prunepaths = false;
@@ -247,6 +265,12 @@ parse_updatedb_conf(void)
 		case UCT_PRUNE_BIND_MOUNTS:
 			had_var = &had_prune_bind_mounts;
 			break;
+
+#ifdef __APPLE__
+		case UCT_PRUNE_FIRMLINKS:
+			had_var = &had_prune_firmlinks;
+			break;
+#endif
 
 		case UCT_PRUNEFS:
 			had_var = &had_prunefs;
@@ -295,6 +319,14 @@ parse_updatedb_conf(void)
 				        UPDATEDB_CONF, uc_line, uc_lex_buf.c_str());
 				exit(EXIT_FAILURE);
 			}
+#ifdef __APPLE__
+		} else if (var_token == UCT_PRUNE_FIRMLINKS) {
+			if (parse_bool(&conf_prune_firmlinks, uc_lex_buf.c_str()) != 0) {
+				fprintf(stderr, "%s:%u: invalid value `%s' of PRUNE_FIRMLINKS\n",
+				        UPDATEDB_CONF, uc_line, uc_lex_buf.c_str());
+				exit(EXIT_FAILURE);
+			}
+#endif
 		} else if (var_token == UCT_PRUNEFS)
 			var_add_values(&conf_prunefs, uc_lex_buf.c_str());
 		else if (var_token == UCT_PRUNENAMES)
@@ -347,6 +379,9 @@ help(void)
 	       "                                 in each block (default 32)\n"
 	       "      --prune-bind-mounts FLAG   omit bind mounts (default "
 	       "\"no\")\n"
+#ifdef __APPLE__
+	       "      --prune-firmlinks FLAG     omit firmlinks (default \"yes\")\n"
+#endif
 	       "      --prunefs FS               filesystems to omit from "
 	       "database\n"
 	       "      --prunenames NAMES         directory names to omit from "
@@ -404,6 +439,9 @@ parse_arguments(int argc, char *argv[])
 		{ "help", no_argument, NULL, 'h' },
 		{ "output", required_argument, NULL, 'o' },
 		{ "prune-bind-mounts", required_argument, NULL, 'B' },
+#ifdef __APPLE__
+		{ "prune-firmlinks", required_argument, NULL, 'L' },
+#endif
 		{ "prunefs", required_argument, NULL, 'F' },
 		{ "prunenames", required_argument, NULL, 'N' },
 		{ "prunepaths", required_argument, NULL, 'P' },
@@ -417,16 +455,22 @@ parse_arguments(int argc, char *argv[])
 
 	bool prunefs_changed, prunenames_changed, prunepaths_changed;
 	bool got_prune_bind_mounts, got_visibility;
+#ifdef __APPLE__
+	bool got_prune_firmlinks;
+#endif
 
 	prunefs_changed = false;
 	prunenames_changed = false;
 	prunepaths_changed = false;
 	got_prune_bind_mounts = false;
+#ifdef __APPLE__
+	got_prune_firmlinks = false;
+#endif
 	got_visibility = false;
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "U:Ve:f:hl:n:o:vb:D", options, &idx);
+		opt = getopt_long(argc, argv, "U:Ve:f:hl:n:o:vb:DB:L:", options, &idx);
 		switch (opt) {
 		case -1:
 			goto options_done;
@@ -447,6 +491,22 @@ parse_arguments(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			}
 			break;
+
+#ifdef __APPLE__
+		case 'L':
+			if (got_prune_firmlinks != false) {
+				fprintf(stderr, "%s: --%s would override earlier command-line argument\n",
+						program_invocation_name, "prune-firmlinks");
+				exit(EXIT_FAILURE);
+			}
+			got_prune_firmlinks = true;
+			if (parse_bool(&conf_prune_firmlinks, optarg) != 0) {
+				fprintf(stderr, "%s: invalid value %s of --%s\n",
+						program_invocation_name, optarg, "prune-firmlinks");
+				exit(EXIT_FAILURE);
+			}
+			break;
+#endif
 
 		case 'F':
 			if (prunefs_changed != false) {
