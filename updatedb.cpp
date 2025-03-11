@@ -543,13 +543,25 @@ int scan(const string &path, int fd, dev_t parent_dev, dir_time modified, dir_ti
 		close(fd);
 		return 0;
 	}
-	if (conf_prune_bind_mounts && is_bind_mount(path.c_str())) {
+	if (conf_prune_bind_mounts && is_bind_mount(path)) {
 		if (conf_debug_pruning) {
 			fprintf(stderr, "Skipping `%s': bind mount\n", path.c_str());
 		}
 		close(fd);
 		return 0;
 	}
+#ifdef HAS_FIRMLINKS_DARWIN_H
+	if (conf_prune_firmlinks) {
+		if (const std::string *firmlink_src = is_firmlink_target(path)) {
+			if (conf_debug_pruning) {
+				fprintf(stderr, "Skipping `%s': firmlink target (source `%s')\n",
+					path.c_str(), firmlink_src->c_str());
+			}
+			close(fd);
+			return 0;
+		}
+	}
+#endif
 
 	// We read in the old directory no matter whether it is current or not,
 	// because even if we're not going to use it, we'll need the modification directory
@@ -799,6 +811,11 @@ int main(int argc, char **argv)
 	if (conf_prune_bind_mounts) {
 		bind_mount_init();
 	}
+#ifdef HAS_FIRMLINKS_DARWIN_H
+	if (conf_prune_firmlinks) {
+		firmlink_init();
+	}
+#endif
 
 	int fd = open(conf_output.c_str(), O_RDONLY);
 	ExistingDB existing_db(fd);

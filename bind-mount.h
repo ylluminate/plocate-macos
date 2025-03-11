@@ -23,12 +23,14 @@ any later version.
 #ifndef BIND_MOUNT_H__
 #define BIND_MOUNT_H__
 
+#include <string>
+
 /* System mount information file */
 #define MOUNTINFO_PATH "/proc/self/mountinfo"
 
 /* Return true if PATH is a destination of a bind mount.
    (Bind mounts "to self" are ignored.) */
-extern bool is_bind_mount(const char *path);
+extern bool is_bind_mount(const std::string &path);
 
 /* Initialize state for is_bind_mount(), to read data from MOUNTINFO_PATH. */
 extern void bind_mount_init();

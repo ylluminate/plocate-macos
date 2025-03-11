@@ -1,5 +1,13 @@
 #pragma once
 
+#ifndef __APPLE__
+#error trying to build Darwin firmlinks support on non-__APPLE__ platform
+#endif
+
+#ifndef HAS_MNTENT_DARWIN_COMPAT_H
+#error Why isn't HAS_MNTENT_DARWIN_COMPAT_H defined?
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

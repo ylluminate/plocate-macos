@@ -1,18 +1,24 @@
 #include "firmlinks_darwin.h"
+#include "conf.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <cstddef>
+#include <cstdio>
 #include <MacTypes.h>
 #include <stdint.h>
 #include <sys/sysctl.h>
 #include <sys/syslimits.h>
 #include <uuid/uuid.h>
 #include <sys/mount.h>
+#include <vector>
 
 // FIXME: remember what the way is to determine if firmlinks are being used at all?
 // like maybe somehow crazy you're running this off of hfs boot partition?
 
+namespace {
 static constexpr size_t UUID_STR_BUF_LEN_W_NUL = 37;
+static std::vector<FirmlinkPair> firmlink_list;
+}
 
 extern "C"
 OSStatus APFSContainerVolumeGroupGetFirmlinks(
@@ -83,10 +89,60 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 	uuid_t vol_group_id;
 	assert(!uuid_parse(uuid_str, vol_group_id));
 
-	CFMutableArrayRef firmlinks = NULL;
+	CFMutableArrayRef firmlinks = nullptr;
 	const OSStatus getfl_res =
 		APFSContainerVolumeGroupGetFirmlinks(dev_buf, vol_group_id, &firmlinks);
 	assert(!getfl_res);
+	assert(firmlinks);
+	if (!firmlinks) {
+		if (conf_debug_pruning) {
+			fprintf(stderr, "Didn't find any firmlinks.\n");
+		}
+		return {};
+	}
 
-	return {};
+	const CFIndex numfl = CFArrayGetCount(firmlinks);
+	assert(numfl % 2 == 0);
+	assert(numfl > 0);
+	FirmlinkPair tmp;
+	std::vector<FirmlinkPair> flplist(numfl/2);
+	for (CFIndex i = 0; i < numfl; ++i) {
+		CFStringRef val = reinterpret_cast<CFStringRef>(
+			CFArrayGetValueAtIndex(firmlinks, i));
+		assert(val);
+		char path[1024];
+		assert(CFStringGetCString(val, path, sizeof(path), kCFStringEncodingUTF8));
+		if (i % 2 == 0) {
+			tmp.logical_path = path;
+		} else {
+			tmp.raw_path = path;
+			flplist[i/2] = tmp;
+		}
+	}
+	CFRelease(firmlinks);
+
+	if (conf_debug_pruning) {
+		const size_t nflp = flplist.size();
+		fprintf(stderr, "Number of firmlinks: %zu\n", nflp);
+		for (size_t i = 0; i < nflp; ++i) {
+			fprintf(stderr, "firmlink[%zu]: logical: %s raw: %s\n", i,
+				flplist[i].logical_path.c_str(), flplist[i].raw_path.c_str());
+		}
+	}
+
+	return flplist;
+}
+
+const std::string *is_firmlink_target(const std::string &path) {
+	for (const auto &fl : firmlink_list) {
+		if (fl.raw_path == path) {
+			return &fl.logical_path;
+		}
+	}
+	return nullptr;
+}
+
+void firmlink_init() {
+	firmlink_list = get_firmlinks();
+	assert(firmlink_list.size() > 0);
 }

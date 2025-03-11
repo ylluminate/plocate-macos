@@ -328,7 +328,7 @@ static void rebuild_bind_mount_paths(void)
 
 /* Return true if PATH is a destination of a bind mount.
    (Bind mounts "to self" are ignored.) */
-bool is_bind_mount(const char *path)
+bool is_bind_mount(const std::string &path)
 {
 	if (mountinfo_updated.exchange(false)) {  // Atomic test-and-clear.
 		rebuild_bind_mount_paths();

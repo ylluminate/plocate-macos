@@ -4,3 +4,4 @@ option('systemunitdir', type: 'string', description: 'Where to install systemd u
 option('locategroup', type: 'string', description: 'Group that the install script will use for the .db file')
 option('updatedb_progname', type: 'string', value: 'updatedb', description: 'Binary name of updatedb')
 option('dbpath', type: 'string', value: 'plocate/plocate.db', description: 'Path to plocate database relative to "sharedstatedir"')
+option('confpath', type: 'string', value: '/etc/updatedb.conf', description: 'Path to updatedb.conf')

@@ -13,7 +13,7 @@ message('Group for updatedb binary will be set to: ', locategroup)
 
 
 add_project_arguments('-DGROUPNAME="' + locategroup + '"', language: 'cpp')
-add_project_arguments('-DUPDATEDB_CONF="/etc/updatedb.conf"', language: 'cpp')
+add_project_arguments('-DUPDATEDB_CONF="' + get_option('confpath') + '"', language: 'cpp')
 dbfile = join_paths(get_option('prefix'), get_option('sharedstatedir'), get_option('dbpath'))
 add_project_arguments('-DDBFILE="' + dbfile + '"', language: 'cpp')
 add_project_arguments('-DPACKAGE_NAME="plocate"', language: 'cpp')
