@@ -4,6 +4,10 @@
 #error endian_darwin_compat.h is meant only for compilation on Apple machines
 #endif
 
+#ifndef HAS_ENDIAN_DARWIN_COMPAT_H
+#error Why isn't HAS_ENDIAN_DARWIN_COMPAT_H defined?
+#endif
+
 #include <libkern/OSByteOrder.h>
 
 #define htobe16(x) OSSwapHostToBigInt16(x)
