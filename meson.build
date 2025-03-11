@@ -46,11 +46,16 @@ else
 	error('no mntent.h or compat shim')
 endif
 
+# macOS firmlinks
 if target_machine.system() == 'darwin'
 	add_project_arguments('-DHAS_FIRMLINKS_DARWIN_H', language: 'cpp')
+	corefoundationdep = dependency('CoreFoundation', method: 'extraframework', required: true)
+	apfsdep = declare_dependency(link_args: join_paths(meson.current_source_dir(), 'tbd/frameworks/APFS.framework/APFS.tbd'))
+	darwindep = [corefoundationdep, apfsdep]
 	firmlinks_darwin_src = ['firmlinks_darwin.cpp']
 else
 	firmlinks_darwin_src = []
+	darwindep = []
 endif 
 
 # Function multiversioning is x86-only _and_ not available on certain targets
@@ -72,7 +77,7 @@ executable('plocate-build', ['plocate-build.cpp', 'database-builder.cpp'],
 	install_dir: get_option('sbindir'))
 updatedb_progname = get_option('updatedb_progname')
 executable(updatedb_progname, ['updatedb.cpp', 'database-builder.cpp', 'conf.cpp', 'lib.cpp', 'bind-mount.cpp', 'complete_pread.cpp'] + mntent_compat_src + firmlinks_darwin_src,
-	dependencies: [zstddep, threaddep],
+	dependencies: [zstddep, threaddep] + darwindep,
 	install: true,
 	install_dir: get_option('sbindir'))
 
