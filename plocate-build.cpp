@@ -1,6 +1,9 @@
 #include "database-builder.h"
 #include "db.h"
 #include "dprintf.h"
+#ifdef HAS_DARWIN_UTILS_H
+#include "darwin_utils.h"
+#endif
 
 #include <algorithm>
 #include <arpa/inet.h>
@@ -232,6 +235,12 @@ int main(int argc, char **argv)
 	int block_size = 32;
 	bool plaintext = false;
 	bool check_visibility = true;
+
+#ifdef HAS_DARWIN_UTILS_H
+	darwin_disable_dataless();
+	darwin_set_atime_updates(false);
+	darwin_set_throttling(true);
+#endif
 
 	setlocale(LC_ALL, "");
 	for (;;) {

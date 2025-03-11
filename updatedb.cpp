@@ -33,6 +33,9 @@ any later version.
 #ifdef HAS_FIRMLINKS_DARWIN_H
 #include "firmlinks_darwin.h"
 #endif
+#ifdef HAS_DARWIN_UTILS_H
+#include "darwin_utils.h"
+#endif
 
 #include <algorithm>
 #include <arpa/inet.h>
@@ -806,6 +809,12 @@ int main(int argc, char **argv)
 		rlim.rlim_cur = std::min<rlim_t>(wanted, rlim.rlim_max);
 		setrlimit(RLIMIT_NOFILE, &rlim);  // Ignore errors.
 	}
+
+#ifdef HAS_DARWIN_UTILS_H
+	darwin_disable_dataless();
+	darwin_set_atime_updates(false);
+	darwin_set_throttling(true);
+#endif
 
 	conf_prepare(argc, argv);
 	if (conf_prune_bind_mounts) {

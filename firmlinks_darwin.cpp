@@ -1,15 +1,18 @@
+#undef NDEBUG
+#include <cassert>
+
 #include "firmlinks_darwin.h"
 #include "conf.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <MacTypes.h>
-#include <stdint.h>
+#include <sys/mount.h>
 #include <sys/sysctl.h>
 #include <sys/syslimits.h>
 #include <uuid/uuid.h>
-#include <sys/mount.h>
 #include <vector>
 
 // FIXME: remember what the way is to determine if firmlinks are being used at all?
@@ -105,7 +108,7 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 	assert(numfl % 2 == 0);
 	assert(numfl > 0);
 	FirmlinkPair tmp;
-	std::vector<FirmlinkPair> flplist(numfl/2);
+	std::vector<FirmlinkPair> flplist(numfl/2 + 1);
 	for (CFIndex i = 0; i < numfl; ++i) {
 		CFStringRef val = reinterpret_cast<CFStringRef>(
 			CFArrayGetValueAtIndex(firmlinks, i));
@@ -120,6 +123,8 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 		}
 	}
 	CFRelease(firmlinks);
+
+	flplist.push_back({"/", "/System/Volumes/Data"});
 
 	if (conf_debug_pruning) {
 		const size_t nflp = flplist.size();
