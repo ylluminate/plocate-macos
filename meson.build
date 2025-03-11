@@ -8,7 +8,10 @@ if get_option('locategroup') == ''
 	else
 		locategroup = '_plocate'
 	endif
+else
+	locategroup = get_option('locategroup')
 endif
+
 message('Group for updatedb binary will be set to: ', locategroup)
 
 
