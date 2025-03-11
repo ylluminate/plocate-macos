@@ -21,6 +21,7 @@ OSStatus APFSContainerVolumeGroupGetFirmlinks(
 
 std::vector<FirmlinkPair> get_firmlinks(void) {
 	char dev_buf[PATH_MAX];
+	dev_buf[0] = '\0';
 	struct statfs *mounts = nullptr;
 	int num_mounts = getmntinfo_r_np(&mounts, 0);
 	assert(num_mounts > 0);
@@ -30,7 +31,7 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 			continue;
 		}
 		const char  * const dev_path = mounts[i].f_mntfromname;
-		assert(memcmp(dev_path, "/dev/disk", sizeof("/dev/disk") - 1));
+		assert(!memcmp(dev_path, "/dev/disk", sizeof("/dev/disk") - 1));
 		const char * const dev_name = dev_path + (sizeof("/dev/") - 1);
 		const size_t dev_name_len = strlen(dev_name);
 		const char * const dev_trailer = dev_name + (sizeof("disk") - 1);
@@ -61,17 +62,19 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 		}
 		if (num_s >= 1) {
 			assert(first_s);
-			const size_t dev_len = dev_trailer_len - strlen(first_s);
+			const size_t dev_len = (sizeof("disk") - 1) + (dev_trailer_len - strlen(first_s));
 			assert(dev_len + 1 < sizeof(dev_buf));
 			memcpy(dev_buf, dev_name, dev_len);
-			dev_buf[dev_len-1] = '\0';
+			dev_buf[dev_len] = '\0';
 		} else {
 			assert(dev_name_len + 1 < sizeof(dev_buf));
 			memcpy(dev_buf, dev_name, dev_name_len + 1);
 		}
+		break;
 	}
 	free(mounts);
-	mounts = nullptr;
+
+	assert(dev_buf[0] != '\0');
 
 	char uuid_str[UUID_STR_BUF_LEN_W_NUL] = {0};
 	size_t uuid_str_sz = sizeof(uuid_str);
