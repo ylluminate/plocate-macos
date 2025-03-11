@@ -59,7 +59,15 @@ if target_machine.system() == 'darwin'
 else
 	firmlinks_darwin_src = []
 	darwindep = []
-endif 
+endif
+
+# macOS utilities
+if target_machine.system() == 'darwin'
+	add_project_arguments('-DHAS_DARWIN_UTILS_H', language: 'cpp')
+	darwin_utils_src = ['darwin_utils.cpp']
+else
+	darwin_utils_src = []
+endif
 
 # Function multiversioning is x86-only _and_ not available on certain targets
 # (they need “ifunc”, indirect functions, a GNU extension).
@@ -70,16 +78,16 @@ if cxx.compiles(code, name: 'function multiversioning')
 	add_project_arguments('-DHAS_FUNCTION_MULTIVERSIONING', language: 'cpp')
 endif
 
-executable('plocate', ['plocate.cpp', 'io_uring_engine.cpp', 'turbopfor.cpp', 'parse_trigrams.cpp', 'serializer.cpp', 'access_rx_cache.cpp', 'needle.cpp', 'complete_pread.cpp'],
+executable('plocate', ['plocate.cpp', 'io_uring_engine.cpp', 'turbopfor.cpp', 'parse_trigrams.cpp', 'serializer.cpp', 'access_rx_cache.cpp', 'needle.cpp', 'complete_pread.cpp'] + darwin_utils_src,
 	dependencies: [uringdep, zstddep, threaddep, atomicdep],
 	install: true,
 	install_mode: ['rwxr-sr-x', 'root', locategroup])
-executable('plocate-build', ['plocate-build.cpp', 'database-builder.cpp'],
+executable('plocate-build', ['plocate-build.cpp', 'database-builder.cpp'] + darwin_utils_src,
 	dependencies: [zstddep],
 	install: true,
 	install_dir: get_option('sbindir'))
 updatedb_progname = get_option('updatedb_progname')
-executable(updatedb_progname, ['updatedb.cpp', 'database-builder.cpp', 'conf.cpp', 'lib.cpp', 'bind-mount.cpp', 'complete_pread.cpp'] + mntent_compat_src + firmlinks_darwin_src,
+executable(updatedb_progname, ['updatedb.cpp', 'database-builder.cpp', 'conf.cpp', 'lib.cpp', 'bind-mount.cpp', 'complete_pread.cpp'] + mntent_compat_src + firmlinks_darwin_src + darwin_utils_src,
 	dependencies: [zstddep, threaddep] + darwindep,
 	install: true,
 	install_dir: get_option('sbindir'))

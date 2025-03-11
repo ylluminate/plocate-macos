@@ -8,6 +8,10 @@
 #include "serializer.h"
 #include "turbopfor.h"
 #include "unique_sort.h"
+#ifdef HAS_DARWIN_UTILS_H
+#include "darwin_utils.h"
+#endif
+
 
 #include <algorithm>
 #include <assert.h>
@@ -870,6 +874,12 @@ int main(int argc, char **argv)
 		{ "ignore-visibility", no_argument, 0, IGNORE_VISIBILITY },
 		{ 0, 0, 0, 0 }
 	};
+
+#ifdef HAS_DARWIN_UTILS_H
+	darwin_disable_dataless();
+	darwin_set_atime_updates(false);
+	darwin_set_throttling(false);
+#endif
 
 	setlocale(LC_ALL, "");
 	for (;;) {
