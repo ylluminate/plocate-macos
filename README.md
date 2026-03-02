@@ -19,19 +19,19 @@ If you have ever typed `locate somefile` on macOS and gotten nothing back, or be
 
 ```bash
 brew tap ylluminate/utilities
-brew install plocate
+brew install --HEAD plocate
 ```
 
 After install, build the initial database (requires sudo):
 
 ```bash
-sudo updatedb
+sudo updatedb --require-visibility no
 ```
 
-The launchd agent keeps the database current after that. To load it immediately:
+For automatic daily updates:
 
 ```bash
-sudo launchctl load /Library/LaunchDaemons/com.plocate-macos.updatedb.plist
+sudo brew services start plocate
 ```
 
 ## Quick Start
@@ -82,7 +82,7 @@ PRUNE_FIRMLINKS="yes"
 To index an external volume, remove `/Volumes` from `PRUNEPATHS` and add the specific paths you want to exclude instead. Or build a separate database:
 
 ```bash
-sudo updatedb -U /Volumes/MyDrive -o /opt/homebrew/var/lib/plocate/myvolume.db
+sudo updatedb -U /Volumes/MyDrive -o /opt/homebrew/var/lib/plocate/myvolume.db --require-visibility no
 plocate -d /opt/homebrew/var/lib/plocate/myvolume.db something
 ```
 

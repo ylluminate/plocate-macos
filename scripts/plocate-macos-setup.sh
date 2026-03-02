@@ -69,7 +69,7 @@ fi
 # --- initial database build ---
 
 echo "    running initial updatedb (this may take a few minutes)"
-"${UPDATEDB}" --output "${DB_PATH}"
+"${UPDATEDB}" --require-visibility no --output "${DB_PATH}"
 
 if [ -f "${DB_PATH}" ]; then
     chown root:"${PLOCATE_GROUP}" "${DB_PATH}"
