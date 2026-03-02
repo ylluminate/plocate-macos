@@ -16,12 +16,18 @@ Upstream plocate changes are tracked in `NEWS`. This file covers macOS-specific 
 - **Homebrew formula** — available via the `ylluminate/utilities` tap (`brew tap ylluminate/utilities && brew install plocate`).
 - **GitHub Actions CI** — builds on macOS (arm64 and x86_64) against current Homebrew dependencies.
 
+### Fixed
+
+- **SIGPIPE when piping output** — `plocate httpd | head` no longer prints "FATAL: Child died unexpectedly." The child process now detects SIGPIPE on the parent and exits cleanly instead of treating it as an unexpected death.
+- **Compiled-in database path** — the Homebrew formula now passes an absolute path for `dbpath` so meson does not resolve it relative to the Cellar prefix. Without this, the compiled-in default pointed to a path inside the Cellar that would break on upgrades.
+
 ### Changed
 
 - **Error handling in macOS compat layer** — replaced `assert()` calls that would crash updatedb on certain I/O policy failures with `fprintf(stderr, ...)` and continued execution. Silent failures on `setiopolicy_np` no longer abort the entire index run.
 - **Default branch** renamed from `jev/xnu` to `main`.
 - **Group name** defaults to `_plocate` on macOS (underscore prefix follows macOS convention for system-created groups).
 - **DBFILE path** defaults to `/opt/homebrew/var/lib/plocate/plocate.db` on macOS Homebrew installs (arm64 prefix).
+- **`locate` symlink** — the Homebrew formula installs a `locate` → `plocate` symlink in `bin/` so plocate works as a drop-in replacement. Does not conflict with findutils, which installs `glocate` in `bin/` and only provides `locate` inside `libexec/gnubin/`.
 
 ### Inherited from jevinskie/plocate-xnu
 
