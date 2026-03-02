@@ -81,15 +81,54 @@ PRUNENAMES=".git node_modules __pycache__ .venv .Trash ..."
 PRUNE_FIRMLINKS="yes"
 ```
 
-To index an external volume, remove `/Volumes` from `PRUNEPATHS` and add the specific paths you want to exclude instead. Or build a separate database:
+### Including excluded paths
+
+External volumes (`/Volumes`) are excluded by default to keep the index fast and focused. There are three ways to include additional paths:
+
+**Option 1: Separate database per volume (recommended)**
+
+Build an independent database for each volume you want indexed. This keeps your main database small and lets you add or remove volumes without rebuilding everything:
 
 ```bash
+# Build a database for one external volume
 # --require-visibility no: skip per-user access checks (fine for single-user Macs)
 sudo updatedb -U /Volumes/MyDrive -o /opt/homebrew/var/lib/plocate/myvolume.db --require-visibility no
+
+# Search it directly
 plocate -d /opt/homebrew/var/lib/plocate/myvolume.db something
 ```
 
-The `LOCATE_PATH` environment variable accepts colon-separated database paths if you want plocate to search multiple databases by default.
+To search multiple databases at once, set `LOCATE_PATH` in your shell profile:
+
+```bash
+export LOCATE_PATH="/opt/homebrew/var/lib/plocate/plocate.db:/opt/homebrew/var/lib/plocate/myvolume.db"
+```
+
+Now `plocate something` searches both databases automatically.
+
+**Option 2: Edit the config file**
+
+For permanent changes, edit `/opt/homebrew/etc/updatedb.conf` directly. Remove `/Volumes` from `PRUNEPATHS` and add the specific paths you want to exclude instead:
+
+```bash
+# Before: all of /Volumes excluded
+PRUNEPATHS="/Volumes /System/Volumes/VM ..."
+
+# After: only specific volumes excluded, MyDrive included
+PRUNEPATHS="/Volumes/TimeMachine /Volumes/Recovery /System/Volumes/VM ..."
+```
+
+Then rebuild: `sudo updatedb --require-visibility no`
+
+**Option 3: One-off override from the command line**
+
+Use `--prunepaths` to completely replace the config's exclusion list for a single run:
+
+```bash
+sudo updatedb --prunepaths "/System/Volumes/VM /cores" --require-visibility no
+```
+
+This indexes everything the config would normally skip, except the paths you explicitly list. Useful for one-time full scans. Use `--add-prunepaths` to add to the config's list instead of replacing it.
 
 ## How It Works
 
