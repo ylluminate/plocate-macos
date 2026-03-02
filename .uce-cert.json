@@ -1,0 +1,12 @@
+{
+  "project": "/Users/u/tank/ventures/utilities/plocate-macos",
+  "version": "4.8.0",
+  "timestamp": "2026-03-02T08:30:42.284Z",
+  "graph_hash": "8a0ba1b7ece913d84bbe7a7e8ae65354",
+  "node_count": 596,
+  "edge_count": 1502,
+  "resolved_pct": 98.34,
+  "contracts": ["schema_dispatch", "hook_permissions", "migration_registration", "file_references", "module_interface", "import_resolution", "duplicate_definition", "orphan_definitions", "shell_scripts_executable", "broken_references", "symlink_chain", "hook_protocol", "test_file_conventions", "expected_directories", "project_hygiene", "fix_thrash", "change_test_coupling", "config_audit", "doc_code_references", "prose_term_consistency", "citation_resolution", "vision_drift", "feature_group_duplication", "Docker needs .dockerignore", "package.json needs lockfile", ".env.example needs .gitignore entry"],
+  "violations": {"critical": 0, "warning": 0, "info": 8, "total": 8},
+  "health": 100
+}

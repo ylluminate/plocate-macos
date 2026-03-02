@@ -764,6 +764,10 @@ uint64_t do_search_file_in_child(const vector<Needle> &needles, const std::strin
 			exit(WEXITSTATUS(wstatus));
 		}
 		// Success!
+	} else if (WIFSIGNALED(wstatus) && WTERMSIG(wstatus) == SIGPIPE) {
+		// Output was piped to a command that closed early (e.g. head).
+		// Not an error — just stop quietly.
+		exit(0);
 	} else if (!WIFEXITED(wstatus)) {
 		fprintf(stderr, "FATAL: Child died unexpectedly while processing %s\n", filename.c_str());
 		exit(1);
