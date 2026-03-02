@@ -8,6 +8,8 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>/opt/homebrew/sbin/updatedb</string>
+		<string>--require-visibility</string>
+		<string>no</string>
 		<string>--output</string>
 		<string>/opt/homebrew/var/lib/plocate/plocate.db</string>
 	</array>
@@ -34,6 +36,14 @@
 
 	<key>StandardErrorPath</key>
 	<string>/var/log/plocate-updatedb.log</string>
+
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>LANG</key>
+		<string>en_US.UTF-8</string>
+		<key>LC_ALL</key>
+		<string>en_US.UTF-8</string>
+	</dict>
 
 	<key>RunAtLoad</key>
 	<false/>
