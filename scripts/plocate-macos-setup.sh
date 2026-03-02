@@ -68,6 +68,9 @@ fi
 
 # --- initial database build ---
 
+# --require-visibility no: skip per-user file permission checks.
+# Safe for personal Macs. On multi-user machines, remove this flag
+# and ensure users are added to the _plocate group above.
 echo "    running initial updatedb (this may take a few minutes)"
 "${UPDATEDB}" --require-visibility no --output "${DB_PATH}"
 

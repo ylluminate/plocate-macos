@@ -5,6 +5,12 @@
 	<key>Label</key>
 	<string>com.plocate-macos.updatedb</string>
 
+	<!--
+	  require-visibility no: Skip per-user file permission checks on search
+	  results. Safe for single-user Macs (the common case). On shared machines,
+	  remove these two lines and create a _plocate group so each user only sees
+	  paths they can access.
+	-->
 	<key>ProgramArguments</key>
 	<array>
 		<string>/opt/homebrew/sbin/updatedb</string>
