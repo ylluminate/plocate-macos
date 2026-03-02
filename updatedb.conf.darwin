@@ -1,0 +1,18 @@
+# Default configuration for plocate-macos.
+# See updatedb.conf(5) for details.
+
+# Filesystem types to skip.
+# Network mounts, virtual filesystems, and non-native formats are excluded
+# to keep the index fast and local.
+PRUNEFS="devfs autofs nullfs smbfs nfs nfs4 afpfs webdavfs fuse macfuse tuxera_ntfs ntfs exfat msdos msdosfs iso9660 cd9660 tmpfs"
+
+# Paths to skip.
+# /Volumes is excluded by default. To index a specific volume, remove it
+# from this list or use updatedb -U /Volumes/MyDrive -o /path/to/extra.db
+PRUNEPATHS="/Volumes /System/Volumes/VM /System/Volumes/Preboot /System/Volumes/Data /System/Volumes/Update /System/Volumes/Recovery /System/Volumes/BaseSystem /System/Volumes/xarts /System/Volumes/iSCPreboot /System/Volumes/Hardware /System/Volumes/FieldService /System/Volumes/FieldServiceDiagnostic /System/Volumes/FieldServiceRepair /private/tmp /private/var/tmp /private/var/folders /private/var/vm /private/var/run /cores /Library/Developer/CoreSimulator"
+
+# Directory names to skip at any depth.
+PRUNENAMES=".git .svn .hg .bzr CVS .Trash .Trashes .Spotlight-V100 .fseventsd .TemporaryItems .DocumentRevisions-V100 node_modules __pycache__ .venv .tox .cache"
+
+# Skip APFS firmlinks to avoid indexing the same files twice.
+PRUNE_FIRMLINKS="yes"
