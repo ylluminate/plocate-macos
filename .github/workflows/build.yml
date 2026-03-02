@@ -1,0 +1,27 @@
+name: build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: brew install meson ninja pkg-config zstd
+
+      - name: meson setup
+        run: meson setup build
+
+      - name: build
+        run: ninja -C build
+
+      - name: test
+        run: bash tests/test-basic.sh
