@@ -1,3 +1,4 @@
 *.o
 plocate
 plocate-build
+thoughts/
