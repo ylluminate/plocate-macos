@@ -53,7 +53,18 @@ endif
 if target_machine.system() == 'darwin'
 	add_project_arguments('-DHAS_FIRMLINKS_DARWIN_H', language: 'cpp')
 	corefoundationdep = dependency('CoreFoundation', method: 'extraframework', required: true)
-	apfsdep = declare_dependency(link_args: join_paths(meson.current_source_dir(), 'tbd/frameworks/APFS.framework/APFS.tbd'))
+	# Prefer APFS.tbd from the Xcode SDK; fall back to the vendored stub
+	sdk_apfs = run_command('xcrun', '--show-sdk-path', check: false)
+	if sdk_apfs.returncode() == 0
+		sdk_apfs_tbd = join_paths(sdk_apfs.stdout().strip(), 'System/Library/PrivateFrameworks/APFS.framework/APFS.tbd')
+		if run_command('[', '-f', sdk_apfs_tbd, ']', check: false).returncode() == 0
+			apfsdep = declare_dependency(link_args: sdk_apfs_tbd)
+		else
+			apfsdep = declare_dependency(link_args: join_paths(meson.current_source_dir(), 'tbd/frameworks/APFS.framework/APFS.tbd'))
+		endif
+	else
+		apfsdep = declare_dependency(link_args: join_paths(meson.current_source_dir(), 'tbd/frameworks/APFS.framework/APFS.tbd'))
+	endif
 	darwindep = [corefoundationdep, apfsdep]
 	firmlinks_darwin_src = ['firmlinks_darwin.cpp']
 else
