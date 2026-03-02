@@ -28,6 +28,8 @@ After install, build the initial database (requires sudo):
 sudo updatedb --require-visibility no
 ```
 
+`--require-visibility no` disables per-user file permission checks on search results. Without it, plocate requires a `_plocate` system group and setgid binary to filter results per user — useful on shared multi-user machines, but unnecessary overhead on a personal Mac. Omit this flag on multi-user systems where you want users restricted to seeing only paths they have access to (and run the setup script to create the group).
+
 For automatic daily updates:
 
 ```bash
@@ -82,6 +84,7 @@ PRUNE_FIRMLINKS="yes"
 To index an external volume, remove `/Volumes` from `PRUNEPATHS` and add the specific paths you want to exclude instead. Or build a separate database:
 
 ```bash
+# --require-visibility no: skip per-user access checks (fine for single-user Macs)
 sudo updatedb -U /Volumes/MyDrive -o /opt/homebrew/var/lib/plocate/myvolume.db --require-visibility no
 plocate -d /opt/homebrew/var/lib/plocate/myvolume.db something
 ```
