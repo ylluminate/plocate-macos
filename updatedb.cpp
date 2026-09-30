@@ -555,7 +555,13 @@ int scan(const string &path, int fd, dev_t parent_dev, dir_time modified, dir_ti
 	}
 #ifdef HAS_FIRMLINKS_DARWIN_H
 	if (conf_prune_firmlinks) {
-		if (const std::string *firmlink_src = is_firmlink_target(path)) {
+		// Only skip a firmlink target when the logical path it duplicates is inside the
+		// scanned tree; otherwise e.g. `-U /System/Volumes/Data` would prune its own root.
+		if (const std::string *firmlink_src = is_firmlink_target(path);
+		    firmlink_src != nullptr &&
+		    (strcmp(conf_scan_root, "/") == 0 ||
+		     *firmlink_src == conf_scan_root ||
+		     firmlink_src->rfind(string(conf_scan_root) + '/', 0) == 0)) {
 			if (conf_debug_pruning) {
 				fprintf(stderr, "Skipping `%s': firmlink target (source `%s')\n",
 					path.c_str(), firmlink_src->c_str());
