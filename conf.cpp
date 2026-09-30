@@ -674,6 +674,8 @@ gen_conf_block(void)
 	CONST("prune_bind_mounts");
 	/* Add two NUL bytes after the value */
 	conf_block.append(conf_prune_bind_mounts != false ? "1\0" : "0\0", 3);
+	CONST("prune_firmlinks");
+	conf_block.append(conf_prune_firmlinks ? "1\0" : "0\0", 3);
 	CONST("prunefs");
 	gen_conf_block_string_list(&conf_block, &conf_prunefs);
 	CONST("prunenames");
