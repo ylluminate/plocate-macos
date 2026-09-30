@@ -16,7 +16,7 @@ void darwin_set_throttling(bool enable_throttling) {
 }
 
 void darwin_set_atime_updates(bool enable_atime_updates) {
-	if (setiopolicy_np(IOPOL_TYPE_DISK, IOPOL_SCOPE_PROCESS, enable_atime_updates ? IOPOL_ATIME_UPDATES_DEFAULT : IOPOL_ATIME_UPDATES_OFF)) {
-		fprintf(stderr, "plocate: setiopolicy_np(IOPOL_TYPE_DISK, atime) failed\n");
+	if (setiopolicy_np(IOPOL_TYPE_VFS_ATIME_UPDATES, IOPOL_SCOPE_PROCESS, enable_atime_updates ? IOPOL_ATIME_UPDATES_DEFAULT : IOPOL_ATIME_UPDATES_OFF)) {
+		fprintf(stderr, "plocate: setiopolicy_np(IOPOL_TYPE_VFS_ATIME_UPDATES) failed\n");
 	}
 }
