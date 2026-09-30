@@ -157,7 +157,7 @@ std::vector<FirmlinkPair> get_firmlinks(void) {
 		return {};
 	}
 	FirmlinkPair tmp;
-	std::vector<FirmlinkPair> flplist(numfl/2 + 1);
+	std::vector<FirmlinkPair> flplist(numfl/2);
 	for (CFIndex i = 0; i < numfl; ++i) {
 		CFStringRef val = reinterpret_cast<CFStringRef>(
 			CFArrayGetValueAtIndex(firmlinks, i));
